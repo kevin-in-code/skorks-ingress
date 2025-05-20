@@ -22,6 +22,9 @@ RSpec.describe Ingress do
     end
   end
 
+  class SubclassOfTestObject < TestObject
+  end
+
   describe "when user has no role", uuid: SecureRandom.uuid do
     let(:user_permissions_class) do
       Class.new(Ingress::Permissions) do
@@ -114,6 +117,15 @@ RSpec.describe Ingress do
           expect(permissions.can?(:update, test_object)).to be_truthy
           expect(permissions.can?(:create, :member_stuff)).to be_truthy
           expect(permissions.can?(:create, TestObject)).to be_truthy
+        end
+      end
+
+      context "when conditions will match on a compliant subclass" do
+        let(:user) { TestUser.new(id: 5, role_identifiers: [:member]) }
+        let(:test_object) { SubclassOfTestObject.new(id: 88, user_id: 5) }
+
+        it "user is able to do action defined for role" do
+          expect(permissions.can?(:update, test_object)).to be_truthy
         end
       end
 

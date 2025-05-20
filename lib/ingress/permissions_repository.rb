@@ -49,7 +49,11 @@ module Ingress
       rules = []
       rules += @role_subject_action_rule[role_identifier][subject][action]
       unless subject == "*"
-        rules += @role_subject_action_rule[role_identifier][subject.class][action]
+        klass = subject.class
+        while klass != nil
+          rules += @role_subject_action_rule[role_identifier][klass][action]
+          klass = klass.superclass
+        end
       end
 
       rules
